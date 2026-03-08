@@ -1,20 +1,28 @@
 import http from "http";
 import { open } from "fs/promises";
-import { dirPath, serveDirectory } from "./lib/utils.js";
+import { dirPath, getHeaders, serveDirectory, baseURL } from "./lib/utils.js";
 
 const server = http.createServer(async (req, res) => {
-  if (req.url == "/") {
+  let { pathname: url, searchParams: params } = new URL(req.url, baseURL);
+  if (url == "/") {
     await serveDirectory(req, res);
   } else {
+    url = url.at(-1) == "/" ? url.slice(0, -1) : url;
     try {
       const fileHandle = await open(
-        dirPath + "/public" + decodeURIComponent(req.url),
+        dirPath + "/public" + decodeURIComponent(url),
       );
       const stats = await fileHandle.stat();
       if (stats.isDirectory()) {
         await serveDirectory(req, res);
       } else {
         const readStream = fileHandle.createReadStream();
+        const headers = getHeaders(
+          params.get("action"),
+          url.split("/").at(-1),
+          stats.size,
+        );
+        res.setHeaders(headers);
         readStream.pipe(res);
       }
       res.on("error", () => {
