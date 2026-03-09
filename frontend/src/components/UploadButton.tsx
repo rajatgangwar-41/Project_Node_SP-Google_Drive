@@ -1,9 +1,10 @@
 "use client";
 
 import toast from "react-hot-toast";
-import { useRef } from "react";
+import { startTransition, useRef } from "react";
 import { Upload } from "lucide-react";
 import { BACKEND_URL } from "@/constants/data";
+import { useRouter } from "next/navigation";
 
 interface Props {
   path: string;
@@ -12,6 +13,7 @@ interface Props {
 
 export default function UploadButton({ path, setProgress }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const handleUpload = () => {
     inputRef.current?.click();
@@ -36,7 +38,10 @@ export default function UploadButton({ path, setProgress }: Props) {
     xhr.onload = () => {
       setProgress(null);
       toast.success("Upload completed");
-      window.location.reload();
+      // window.location.reload();
+      startTransition(() => {
+        router.refresh();
+      });
     };
 
     xhr.onerror = () => {

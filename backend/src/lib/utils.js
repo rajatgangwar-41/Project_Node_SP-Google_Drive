@@ -14,6 +14,12 @@ export const getHeaders = (type, fileName, size) => {
   if (type == "download") value = `attachment; filename=${fileName}`;
   else value = "inline";
 
+  // let mimeType = mime.contentType(fileName) || "text/plain";
+  // mimeType = mimeType.includes("video")
+  //   ? mimeType.replace("video", "application")
+  //   : mimeType;
+  // console.log("🚀 ~ getHeaders ~ mimeType:", mimeType);
+
   const headers = new Headers({
     "content-disposition": value,
     "content-length": size,

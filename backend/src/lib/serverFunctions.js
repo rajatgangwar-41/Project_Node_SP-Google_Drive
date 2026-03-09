@@ -1,4 +1,4 @@
-import { open } from "fs/promises";
+import { open, rm } from "fs/promises";
 import { createWriteStream } from "fs";
 import { getHeaders, serveDirectory } from "./utils.js";
 import { dirPath } from "../constants/data.js";
@@ -49,7 +49,11 @@ export const handlePOSTRequest = async (req, res, url) => {
   url = url.at(-1) == "/" ? url.slice(0, -1) : url;
   try {
     const writeStream = createWriteStream(
-      dirPath + "/public" + url + "/" + req.headers.filename,
+      dirPath +
+        "/public" +
+        decodeURIComponent(url) +
+        "/" +
+        req.headers.filename,
     );
 
     req.on("data", (chunk) => {
@@ -58,6 +62,7 @@ export const handlePOSTRequest = async (req, res, url) => {
 
     req.on("end", () => {
       res.end("File Uploaded Successfully");
+      writeStream.end();
     });
 
     req.on("error", () => {
@@ -68,5 +73,18 @@ export const handlePOSTRequest = async (req, res, url) => {
     console.log(JSON.stringify("File Upload Failed"));
     res.writeHead(404, "File Upload Failed");
     res.end(JSON.stringify("File Upload Failed"));
+  }
+};
+
+export const handleDELETERequest = async (req, res, url) => {
+  url = url.at(-1) == "/" ? url.slice(0, -1) : url;
+  try {
+    await rm(dirPath + "/public" + decodeURIComponent(url));
+    res.end("File Deleted Successfully");
+  } catch (error) {
+    console.log(error.message);
+    console.log(JSON.stringify("File Couldn't be Deleted"));
+    res.writeHead(404, "File Couldn't be Deleted");
+    res.end(JSON.stringify("File Couldn't be Deleted"));
   }
 };

@@ -1,8 +1,10 @@
 "use client";
 
-import { Trash2, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
+import { Trash2, Pencil } from "lucide-react";
 import { BACKEND_URL } from "@/constants/data";
+import { startTransition } from "react";
+import { useRouter } from "next/navigation";
 
 export default function FileOperations({
   path,
@@ -11,17 +13,30 @@ export default function FileOperations({
   path: string;
   name: string;
 }) {
+  const router = useRouter();
+
   const deleteItem = async () => {
     const confirmed = confirm("Delete this item?");
     if (!confirmed) return;
+    console.log(`${BACKEND_URL + path + name}?action=delete`);
 
     try {
-      await fetch(`${BACKEND_URL + path + name}?action=delete`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `${BACKEND_URL + path + name}?action=delete`,
+        {
+          method: "DELETE",
+        },
+      );
 
-      toast.success("Deleted successfully");
-      window.location.reload();
+      if (response.status === 200) {
+        toast.success("Deleted successfully");
+        // window.location.reload();
+        startTransition(() => {
+          router.refresh();
+        });
+      } else {
+        throw new Error();
+      }
     } catch {
       toast.error("Delete failed");
     }

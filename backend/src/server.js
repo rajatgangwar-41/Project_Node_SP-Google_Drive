@@ -4,12 +4,14 @@ import {
   handleGETRequest,
   handlePOSTRequest,
   handleOPTIONSRequest,
+  handleDELETERequest,
 } from "./lib/serverFunctions.js";
 
 const server = http.createServer(async (req, res) => {
   let { pathname: url, searchParams: params } = new URL(req.url, baseURL);
   res.setHeader("access-control-allow-origin", "*");
   res.setHeader("access-control-allow-headers", "*");
+  res.setHeader("access-control-allow-methods", "*");
 
   switch (req.method) {
     case "OPTIONS": {
@@ -22,6 +24,10 @@ const server = http.createServer(async (req, res) => {
     }
     case "POST": {
       handlePOSTRequest(req, res, url);
+      break;
+    }
+    case "DELETE": {
+      handleDELETERequest(req, res, url);
       break;
     }
     default:
