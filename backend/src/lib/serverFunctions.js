@@ -1,4 +1,4 @@
-import { open, rm } from "fs/promises";
+import { open, rename, rm } from "fs/promises";
 import { createWriteStream } from "fs";
 import { getHeaders, serveDirectory } from "./utils.js";
 import { dirPath } from "../constants/data.js";
@@ -86,5 +86,29 @@ export const handleDELETERequest = async (req, res, url) => {
     console.log(JSON.stringify("File Couldn't be Deleted"));
     res.writeHead(404, "File Couldn't be Deleted");
     res.end(JSON.stringify("File Couldn't be Deleted"));
+  }
+};
+
+export const handlePATCHRequest = async (req, res, url) => {
+  url = url.at(-1) == "/" ? url.slice(0, -1) : url;
+  const directory = url.split("/").slice(0, -1).join("/");
+  try {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk.toString();
+    });
+    req.on("end", async () => {
+      const { newName } = JSON.parse(body);
+      await rename(
+        dirPath + "/public" + decodeURIComponent(url),
+        dirPath + "/public" + decodeURIComponent(directory) + "/" + newName,
+      );
+      res.end("File Renamed Successfully");
+    });
+  } catch (error) {
+    console.log(error.message);
+    console.log(JSON.stringify("File Couldn't be Renamed"));
+    res.writeHead(404, "File Couldn't be Renamed");
+    res.end(JSON.stringify("File Couldn't be Renamed"));
   }
 };

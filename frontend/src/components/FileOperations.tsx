@@ -47,14 +47,24 @@ export default function FileOperations({
     if (!newName) return;
 
     try {
-      await fetch(`${BACKEND_URL + path + name}?action=rename`, {
-        method: "POST",
-        body: JSON.stringify({ newName }),
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        `${BACKEND_URL + path + name}?action=rename`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ newName }),
+          headers: { "Content-Type": "application/json" },
+        },
+      );
 
-      toast.success("Renamed successfully");
-      window.location.reload();
+      if (response.status === 200) {
+        toast.success("Renamed successfully");
+        // window.location.reload();
+        startTransition(() => {
+          router.refresh();
+        });
+      } else {
+        throw new Error();
+      }
     } catch {
       toast.error("Rename failed");
     }

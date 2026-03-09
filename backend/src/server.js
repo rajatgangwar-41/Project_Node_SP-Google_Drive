@@ -5,6 +5,7 @@ import {
   handlePOSTRequest,
   handleOPTIONSRequest,
   handleDELETERequest,
+  handlePATCHRequest,
 } from "./lib/serverFunctions.js";
 
 const server = http.createServer(async (req, res) => {
@@ -28,6 +29,10 @@ const server = http.createServer(async (req, res) => {
     }
     case "DELETE": {
       handleDELETERequest(req, res, url);
+      break;
+    }
+    case "PATCH": {
+      handlePATCHRequest(req, res, url);
       break;
     }
     default:
