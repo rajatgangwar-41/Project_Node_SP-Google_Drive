@@ -1,4 +1,4 @@
-import { readdir, readFile } from "fs/promises";
+import { readdir } from "fs/promises";
 import mime from "mime-types";
 
 export const dirPath = ".";

@@ -19,10 +19,17 @@ export default async function FolderPage({ params, searchParams }: props) {
 
   const action = queryParams ? "?action=" + queryParams : "";
 
-  const response = await fetch(BACKEND_URL + currentPath + action);
-
   let directoryItems: string[] = [];
-  if (response.status === 200) directoryItems = await response.json();
+  let reason = null;
+  try {
+    const response = await fetch(BACKEND_URL + currentPath + action);
+    console.log("🚀 ~ FolderPage ~ response:", response);
+
+    if (response.status === 200) directoryItems = await response.json();
+  } catch (error) {
+    if ((error as { message: string }).message == "fetch failed")
+      reason = "Server Fetching Failed";
+  }
 
   const isRoot = currentPath === "";
 
@@ -134,10 +141,12 @@ export default async function FolderPage({ params, searchParams }: props) {
               <div className="max-w-sm mx-auto">
                 <File className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  No files or folders found
+                  {reason ?? "No files or folders found"}
                 </h3>
                 <p className="text-gray-500">
-                  This directory is currently empty.
+                  {reason
+                    ? "Try again later"
+                    : "This directory is currently empty."}
                 </p>
               </div>
             </div>
