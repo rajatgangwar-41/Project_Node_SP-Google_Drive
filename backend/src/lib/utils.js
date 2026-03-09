@@ -1,11 +1,6 @@
-import { readdir } from "fs/promises";
 import mime from "mime-types";
-
-export const dirPath = ".";
-
-export const baseURL = "http://localhost";
-// export const baseURL = "http://192.168.1.15";
-// const fileRegex = new RegExp(/\.[^.]+$/);
+import { readdir } from "fs/promises";
+import { baseURL, dirPath } from "../constants/data.js";
 
 export const serveDirectory = async (req, res) => {
   const { pathname: url } = new URL(req.url, baseURL);
