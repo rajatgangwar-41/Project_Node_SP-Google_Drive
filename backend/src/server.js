@@ -4,6 +4,8 @@ import { dirPath, getHeaders, serveDirectory, baseURL } from "./lib/utils.js";
 
 const server = http.createServer(async (req, res) => {
   let { pathname: url, searchParams: params } = new URL(req.url, baseURL);
+  res.setHeader("access-control-allow-origin", "*");
+
   if (url == "/") {
     await serveDirectory(req, res);
   } else {
@@ -34,7 +36,9 @@ const server = http.createServer(async (req, res) => {
       });
     } catch (error) {
       console.log(error.message);
-      res.end("File Not Found");
+      console.log(JSON.stringify("File Not Found"));
+      res.writeHead(404, "File Not Found");
+      res.end(JSON.stringify("File Not Found"));
     }
   }
 });
