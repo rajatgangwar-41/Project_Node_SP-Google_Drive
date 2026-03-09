@@ -40,6 +40,10 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(4000, "0.0.0.0", () => {
+// server.listen(4000, "0.0.0.0", () => {
+//   console.log("Server Listening at port 4000");
+// });
+
+server.listen(4000, () => {
   console.log("Server Listening at port 4000");
 });
