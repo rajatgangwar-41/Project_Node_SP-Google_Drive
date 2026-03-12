@@ -65,7 +65,8 @@ export default function FileOperations({
       } else {
         throw new Error();
       }
-    } catch {
+    } catch (error: unknown) {
+      console.log((error as { message: string }).message);
       toast.error("Rename failed");
     }
   };
