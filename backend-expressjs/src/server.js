@@ -1,6 +1,7 @@
 import express from "express";
 import { readdir, rename, rm } from "node:fs/promises";
 import { publicPath, dirPath } from "./constants/data.js";
+import { createWriteStream } from "node:fs";
 
 const app = express();
 const PORT = 4000;
@@ -19,7 +20,7 @@ app.use((req, res, next) => {
 });
 
 // Read File
-app.get("/:filename", (req, res, next) => {
+app.get("/:filename", (req, res) => {
   const { filename } = req.params;
 
   if (req.query.action === "download")
@@ -29,7 +30,7 @@ app.get("/:filename", (req, res, next) => {
 });
 
 // Delete File
-app.delete("/:filename", async (req, res, next) => {
+app.delete("/:filename", async (req, res) => {
   const { filename } = req.params;
   try {
     await rm(publicPath + "/" + filename);
@@ -40,7 +41,7 @@ app.delete("/:filename", async (req, res, next) => {
 });
 
 // Update File
-app.patch("/:filename", async (req, res, next) => {
+app.patch("/:filename", async (req, res) => {
   const { filename } = req.params;
   const { newName } = req.body;
   try {
@@ -48,6 +49,20 @@ app.patch("/:filename", async (req, res, next) => {
     res.json({ message: "File renamed successfully" });
   } catch {
     res.status(404).json({ message: "File not found" });
+  }
+});
+
+// Create File
+app.post("/:filename", (req, res) => {
+  const { filename } = req.params;
+  try {
+    const writeStream = createWriteStream(publicPath + "/" + filename);
+    req.pipe(writeStream);
+    req.on("end", () => {
+      res.json({ message: "File uploaded successfully" });
+    });
+  } catch {
+    res.status(500).json({ message: "Something wrong! Upload again." });
   }
 });
 

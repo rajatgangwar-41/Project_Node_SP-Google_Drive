@@ -18,11 +18,10 @@ export default function FileOperations({
   const deleteItem = async () => {
     const confirmed = confirm("Delete this item?");
     if (!confirmed) return;
-    console.log(`${BACKEND_URL + path + name}?action=delete`);
 
     try {
       const response = await fetch(
-        `${BACKEND_URL + path + name}?action=delete`,
+        `${BACKEND_URL + path + encodeURIComponent(name)}?action=delete`,
         {
           method: "DELETE",
         },
@@ -48,7 +47,7 @@ export default function FileOperations({
 
     try {
       const response = await fetch(
-        `${BACKEND_URL + path + name}?action=rename`,
+        `${BACKEND_URL + path + encodeURIComponent(name)}?action=rename`,
         {
           method: "PATCH",
           body: JSON.stringify({ newName }),

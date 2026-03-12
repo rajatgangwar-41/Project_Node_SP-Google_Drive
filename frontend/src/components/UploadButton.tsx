@@ -21,12 +21,18 @@ export default function UploadButton({ path, setProgress }: Props) {
 
   const uploadFile = (file: File) => {
     const xhr = new XMLHttpRequest();
-    const formData = new FormData();
+    // const formData = new FormData();
 
-    formData.append("file", file);
+    // formData.append("file", file);
 
-    xhr.open("POST", BACKEND_URL + path + "?action=upload");
-    xhr.setRequestHeader("filename", file.name);
+    // xhr.open("POST", BACKEND_URL + path + "?action=upload");
+    // xhr.setRequestHeader("filename", file.name);
+
+    xhr.open(
+      "POST",
+      BACKEND_URL + path + encodeURIComponent(file.name) + "?action=upload",
+    );
+    xhr.setRequestHeader("Content-Type", file.type);
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
@@ -49,7 +55,8 @@ export default function UploadButton({ path, setProgress }: Props) {
       toast.error("Upload failed");
     };
 
-    xhr.send(formData);
+    // xhr.send(formData);
+    xhr.send(file);
     console.log("Fronted Request Hit");
   };
 
