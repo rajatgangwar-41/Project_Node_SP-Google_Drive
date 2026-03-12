@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "node src/server.js",
-    "watch": "node src/server.js -watch",
+    "watch": "node --watch src/server.js",
     "start": "node src/server.js"
   },
   "keywords": [],
