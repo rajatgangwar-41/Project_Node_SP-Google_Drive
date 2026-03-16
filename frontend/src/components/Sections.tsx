@@ -8,6 +8,7 @@ import FileOperations from "./FileOperations";
 import UploadButton from "./UploadButton";
 import { getMimeType } from "@/lib/utils";
 import { DirectoryItem } from "@/constants/types";
+import CreateFolder from "./CreateFolder";
 
 interface Props {
   directoryItems: DirectoryItem[];
@@ -53,7 +54,8 @@ export default function Sections({
               {directoryItems.length - (isRoot ? 0 : 1) !== 1 ? "s" : ""} found
             </p>
           </div>
-          <div className="flex flex-1 justify-end">
+          <div className="flex flex-1 justify-end gap-2">
+            <CreateFolder path={path} />
             <UploadButton path={path} setProgress={setProgress} />
           </div>
         </div>

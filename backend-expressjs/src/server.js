@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { createWriteStream } from "node:fs";
-import { readdir, rename, rm, stat } from "node:fs/promises";
+import { mkdir, readdir, rename, rm, stat } from "node:fs/promises";
 import { absPublicPath, relPublicPath } from "./constants/data.js";
 
 const app = express();
@@ -37,6 +37,21 @@ app.get("/directory{/*path}", async (req, res) => {
   res.json(result);
 });
 
+// Create Directory
+app.post("/directory{/*path}", async (req, res) => {
+  const { path = [] } = req.params;
+  const dirname = path.join("/");
+
+  try {
+    await mkdir(relPublicPath + `/${dirname}`);
+    res.json({ message: "Directory Created successfully" });
+  } catch {
+    res.status(404).json({ message: "Directory couldn't be created" });
+  }
+
+  res.json(result);
+});
+
 // Read File
 app.get("/files/*path", (req, res) => {
   const { path } = req.params;
@@ -58,7 +73,7 @@ app.delete("/files/*path", async (req, res) => {
   const filename = path.join("/");
 
   try {
-    await rm(relPublicPath + `/${filename}`);
+    await rm(relPublicPath + `/${filename}`, { recursive: true });
     res.json({ message: "File deleted successfully" });
   } catch {
     res.status(404).json({ message: "File not found" });
