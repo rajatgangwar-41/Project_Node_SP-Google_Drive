@@ -1,42 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import mime from "mime-types";
-import { File, FileText, Folder, FolderOpen } from "lucide-react";
+import { File, Folder, FolderOpen } from "lucide-react";
 import FileActions from "./FileActions";
-import { BACKEND_URL, FRONTEND_URL } from "@/constants/data";
+import { BACKEND_URL, FRONTEND_URL, user_id } from "@/constants/data";
 import FileOperations from "./FileOperations";
 import UploadButton from "./UploadButton";
-import { FileIcon, LucideType } from "@/lib/utils";
+import { getMimeType } from "@/lib/utils";
+import { DirectoryItem } from "@/constants/types";
 
 interface Props {
-  directoryItems: string[];
+  directoryItems: DirectoryItem[];
   isRoot: boolean;
-  currentPath: string;
-  reason: string | null;
+  path: string;
+  errorReason: string | null;
 }
 
 export default function Sections({
   directoryItems,
   isRoot,
-  currentPath,
-  reason,
+  path,
+  errorReason,
 }: Props) {
   const [progress, setProgress] = useState<number | null>(null);
 
-  const isParent = (item: string) => {
-    return item === "..";
-  };
-  const isFolder = (item: string) => item === ".." || !item.includes(".");
+  const isParent = (item: DirectoryItem) => item.name === "..";
+  const isFolder = (item: DirectoryItem) => !!item.isDirectory;
 
   const getParentPath = () => {
-    // "use server";
-    if (!currentPath) return "";
+    if (!path) return "";
 
-    const parts = currentPath.split("/").filter(Boolean);
+    const parts = path.split("/").filter(Boolean);
     parts.pop();
 
-    return parts.length ? parts.join("/") + "/" : "";
+    return "/" + parts.join("/");
   };
 
   return (
@@ -57,7 +54,7 @@ export default function Sections({
             </p>
           </div>
           <div className="flex flex-1 justify-end">
-            <UploadButton path={currentPath} setProgress={setProgress} />
+            <UploadButton path={path} setProgress={setProgress} />
           </div>
         </div>
       </div>
@@ -82,17 +79,11 @@ export default function Sections({
       {/* Directory List */}
       <div className="px-1 py-2">
         <ul className="divide-y divide-gray-100">
-          {directoryItems.map((item: string) => {
-            const content = mime.contentType(item);
-            let type: string;
-            let Icon: LucideType;
-            if (typeof content !== "boolean") {
-              type = content.split("/").at(0) || "default";
-              Icon = FileIcon[type] || File;
-            } else Icon = FileText;
+          {directoryItems.map((item) => {
+            const Icon = getMimeType(item);
             return (
               <li
-                key={item}
+                key={item.name}
                 className="px-6 py-4 hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
               >
                 <div className="flex items-center justify-between">
@@ -103,14 +94,15 @@ export default function Sections({
                     ) : isFolder(item) ? (
                       <Folder className="w-7 h-7 text-yellow-600" />
                     ) : (
-                      // <FileText className="w-7 h-7 text-blue-600" />
                       <Icon className="w-7 h-7 text-blue-600" />
                     )}
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-gray-900 font-medium truncate">
-                          {item === ".." ? "← Parent Directory" : item}
+                          {item.name === ".."
+                            ? "← Parent Directory"
+                            : item.name}
                         </span>
                       </div>
 
@@ -120,7 +112,7 @@ export default function Sections({
                             ? "Parent"
                             : isFolder(item)
                               ? "Folder"
-                              : item.split(".").pop()!.toUpperCase()}
+                              : item.name?.split(".").pop()!.toUpperCase()}
                         </span>
 
                         <span className="text-xs text-gray-500">
@@ -136,20 +128,20 @@ export default function Sections({
                       isFolder={isFolder(item)}
                       openUrl={
                         isParent(item)
-                          ? `${FRONTEND_URL + "/folder/" + getParentPath()}?action=open`
+                          ? `${FRONTEND_URL + `/${user_id}` + getParentPath()}?action=open`
                           : `${
                               (isFolder(item)
-                                ? FRONTEND_URL + "/folder/"
-                                : BACKEND_URL) +
-                              currentPath +
-                              item
+                                ? FRONTEND_URL + `/${user_id}`
+                                : BACKEND_URL + "/files") +
+                              (path == "/" ? "" : path) +
+                              `/${item.name}`
                             }?action=open`
                       }
-                      downloadUrl={`${BACKEND_URL + currentPath + item}?action=download`}
+                      downloadUrl={`${BACKEND_URL + "/files" + (path == "/" ? "" : path) + `/${item.name}`}?action=download`}
                     />
 
                     {!isParent(item) && (
-                      <FileOperations path={currentPath} name={item} />
+                      <FileOperations path={path} name={item.name} />
                     )}
                   </div>
                 </div>
@@ -164,10 +156,10 @@ export default function Sections({
             <div className="max-w-sm mx-auto">
               <File className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                {reason ?? "No files or folders found"}
+                {errorReason ?? "No files or folders found"}
               </h3>
               <p className="text-gray-500">
-                {reason
+                {errorReason
                   ? "Try again later"
                   : "This directory is currently empty."}
               </p>
@@ -185,7 +177,7 @@ export default function Sections({
               Folders:{" "}
               {
                 directoryItems.filter(
-                  (item: string) => !isParent(item) && isFolder(item),
+                  (item) => !isParent(item) && isFolder(item),
                 ).length
               }
             </span>
@@ -197,7 +189,7 @@ export default function Sections({
               Files:{" "}
               {
                 directoryItems.filter(
-                  (item: string) => !isParent(item) && !isFolder(item),
+                  (item) => !isParent(item) && !isFolder(item),
                 ).length
               }
             </span>

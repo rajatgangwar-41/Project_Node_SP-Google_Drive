@@ -1,10 +1,13 @@
 import express from "express";
-import { readdir, rename, rm } from "node:fs/promises";
+import cors from "cors";
+import { readdir, rename, rm, stat } from "node:fs/promises";
 import { publicPath, dirPath } from "./constants/data.js";
 import { createWriteStream } from "node:fs";
 
 const app = express();
 const PORT = 4000;
+
+app.use(cors());
 
 // Setting the body
 app.use(express.json());
@@ -20,7 +23,7 @@ app.use((req, res, next) => {
 });
 
 // Read File
-app.get("/:filename", (req, res) => {
+app.get("/files/:filename", (req, res) => {
   const { filename } = req.params;
 
   if (req.query.action === "download")
@@ -30,7 +33,7 @@ app.get("/:filename", (req, res) => {
 });
 
 // Delete File
-app.delete("/:filename", async (req, res) => {
+app.delete("/files/:filename", async (req, res) => {
   const { filename } = req.params;
   try {
     await rm(publicPath + "/" + filename);
@@ -41,7 +44,7 @@ app.delete("/:filename", async (req, res) => {
 });
 
 // Update File
-app.patch("/:filename", async (req, res) => {
+app.patch("/files/:filename", async (req, res) => {
   const { filename } = req.params;
   const { newName } = req.body;
   try {
@@ -53,7 +56,7 @@ app.patch("/:filename", async (req, res) => {
 });
 
 // Create File
-app.post("/:filename", (req, res) => {
+app.post("/files/:filename", (req, res) => {
   const { filename } = req.params;
   try {
     const writeStream = createWriteStream(publicPath + "/" + filename);
@@ -69,13 +72,24 @@ app.post("/:filename", (req, res) => {
 // Read Home Route
 app.get("/", async (req, res) => {
   const fileList = await readdir(dirPath + "/public");
-  res.json(fileList);
+  const result = [];
+  for (const item of fileList) {
+    const stats = await stat(publicPath + req.path + `/${item}`);
+    result.push({ name: item, isDirectory: stats.isDirectory() });
+  }
+  res.json(result);
 });
 
 // Read Images Route
 app.get("/images", async (req, res) => {
+  console.log(req.path);
   const fileList = await readdir(dirPath + "/public/images");
-  res.json(fileList);
+  const result = [];
+  for (const item of fileList) {
+    const stats = await stat(publicPath + req.path + `/${item}`);
+    result.push({ name: item, isDirectory: stats.isDirectory() });
+  }
+  res.json(result);
 });
 
 app.listen(PORT, () => {

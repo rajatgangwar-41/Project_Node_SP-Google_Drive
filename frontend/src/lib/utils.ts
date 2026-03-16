@@ -1,4 +1,4 @@
-import { ForwardRefExoticComponent, RefAttributes } from "react";
+import mime from "mime-types";
 import {
   File,
   FileArchive,
@@ -9,12 +9,8 @@ import {
   FileType,
   FileVideo,
   Image,
-  LucideProps,
 } from "lucide-react";
-
-export type LucideType = ForwardRefExoticComponent<
-  Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
->;
+import { DirectoryItem, LucideType } from "@/constants/types";
 
 export const FileIcon: { [key: string]: LucideType } = {
   video: FileVideo,
@@ -27,4 +23,15 @@ export const FileIcon: { [key: string]: LucideType } = {
   spreadsheet: FileSpreadsheet,
   document: FileType,
   default: File,
+};
+
+export const getMimeType = (item: DirectoryItem) => {
+  const content = mime.contentType(item.name);
+  let Icon: LucideType;
+  if (typeof content !== "boolean") {
+    const type = content.split("/").at(0) || "default";
+    Icon = FileIcon[type] || File;
+  } else Icon = FileText;
+
+  return Icon;
 };

@@ -1,5 +1,6 @@
-export const BACKEND_URL = "http://localhost:4000/";
-export const FRONTEND_URL = "http://localhost:3000/";
+export const BACKEND_URL = "http://localhost:4000";
+export const FRONTEND_URL = "http://localhost:3000";
+export const user_id = "rajat_123";
 
 // export const BACKEND_URL = "http://192.168.1.15:4000/";
 // export const FRONTEND_URL = "http://192.168.1.15:3000/";

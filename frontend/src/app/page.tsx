@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FolderOpen } from "lucide-react";
+import { user_id } from "@/constants/data";
 
 export default function HomePage() {
   return (
@@ -27,7 +28,7 @@ export default function HomePage() {
           </p>
 
           <Link
-            href="/folder"
+            href={`/${user_id}`}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-black text-white font-medium hover:bg-gray-800 transition"
           >
             <FolderOpen size={18} />
