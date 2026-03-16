@@ -30,7 +30,11 @@ export default function UploadButton({ path, setProgress }: Props) {
 
     xhr.open(
       "POST",
-      BACKEND_URL + path + encodeURIComponent(file.name) + "?action=upload",
+      BACKEND_URL +
+        "/files" +
+        path +
+        encodeURIComponent(file.name) +
+        "?action=upload",
     );
     xhr.setRequestHeader("Content-Type", file.type);
 

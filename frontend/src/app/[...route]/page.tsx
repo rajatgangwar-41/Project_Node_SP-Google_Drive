@@ -13,15 +13,15 @@ export default async function UserPage({ params, searchParams }: Props) {
   const pathParams = new URLSearchParams(queryParams).toString();
 
   const path =
-    route.splice(1).reduce((result, item) => {
-      return result + "/" + item;
-    }, "") || "/";
+    route.splice(1).reduce((result, item) => result + "/" + item, "") || "/";
 
   let directoryItems: DirectoryItem[] = [];
   let errorReason = null;
 
   try {
-    const response = await fetch(BACKEND_URL + path + "?" + pathParams);
+    const response = await fetch(
+      BACKEND_URL + "/directory" + path + "?" + pathParams,
+    );
     if (response.status === 200) directoryItems = await response.json();
   } catch (error) {
     if ((error as { message: string }).message == "fetch failed")

@@ -21,7 +21,7 @@ export default function FileOperations({
 
     try {
       const response = await fetch(
-        `${BACKEND_URL + path + encodeURIComponent(name)}?action=delete`,
+        `${BACKEND_URL + "/files" + path + encodeURIComponent(name)}?action=delete`,
         {
           method: "DELETE",
         },
@@ -47,10 +47,10 @@ export default function FileOperations({
 
     try {
       const response = await fetch(
-        `${BACKEND_URL + path + encodeURIComponent(name)}?action=rename`,
+        `${BACKEND_URL + "/files" + path + encodeURIComponent(name)}?action=rename`,
         {
           method: "PATCH",
-          body: JSON.stringify({ newName }),
+          body: JSON.stringify({ newName, path }),
           headers: { "Content-Type": "application/json" },
         },
       );
